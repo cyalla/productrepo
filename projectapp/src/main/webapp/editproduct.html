@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Product</title>
+    <script src="js/product.js"></script>
+</head>
+<body onload="populateFormData()">
+    <h2>Edit Product</h2>
+    <form id="editProductForm">
+        <input type="hidden" id="productId">
+        Name: <input type="text" id="editProductName"><br>
+        Price: <input type="number" id="editProductPrice"><br>
+        <button type="button" onclick="updateProduct()">Update Product</button>
+    </form>
+</body>
+</html>

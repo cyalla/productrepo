@@ -1,1 +1,52 @@
-This product list page
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Management</title>
+    <script src="js/product.js" defer></script>
+    <style>
+        /* Style for positioning the sign-out button */
+        .sign-out-container {
+            position: fixed;
+            right: 10px;
+            top: 10px;
+        }
+
+        /* Additional styles can go here */
+    </style>
+    <script>
+    window.onload = function() {
+        listProducts();
+    };
+
+    function signOut() {
+        // Clearing localStorage or session data as necessary
+        // Example: localStorage.removeItem('userToken');
+
+        // Redirect to the home page after sign out
+        window.location.href = 'index.html';
+    }
+    </script>
+</head>
+<body>
+    <div class="sign-out-container">
+        <button onclick="signOut()">Sign Out</button>
+    </div>
+    <h1>Product Management</h1>
+    <button onclick="window.location.href='createproduct.html'">Create New Product</button>
+
+    <h2>Products List</h2>
+    <table id="productsTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Products will be listed here by the listProducts function -->
+        </tbody>
+    </table>
+</body>
+</html>

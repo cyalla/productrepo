@@ -37,6 +37,7 @@ function register() {
     .then(data => {
         if (data.id) { // Assuming successful registration returns a user object with an id
             document.getElementById("message").innerHTML = "Registration successful for username: " + username;
+            window.location.href = "/productapp/productlist.html";
         } else {
             document.getElementById("message").innerHTML = "Registration failed: " + (data.message || "Unknown error");
         }

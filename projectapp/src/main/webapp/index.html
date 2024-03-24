@@ -3,28 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management</title>
+    <title>Login Page</title>
 </head>
 <body>
     <h2>User Management</h2>
-
-    <!-- Signup Form -->
-    <h3>Sign Up</h3>
-    <form id="signupForm">
-        <label for="regUsername">Username:</label>
-        <input type="text" id="regUsername" required><br><br>
-        <label for="regPassword">Password:</label>
-        <input type="password" id="regPassword" required><br><br>
-        <label for="regFirstName">First Name:</label>
-        <input type="text" id="regFirstName" required><br><br>
-        <label for="regLastName">Last Name:</label>
-        <input type="text" id="regLastName" required><br><br>
-        <label for="regAddress">Address:</label>
-        <input type="text" id="regAddress"><br><br> <!-- Made optional -->
-        <button type="button" onclick="register()">Sign Up</button>
-    </form>
-
-    <br>
 
     <!-- Login Form -->
     <h3>Login</h3>
@@ -36,10 +18,14 @@
         <button type="button" onclick="login()">Login</button>
     </form>
 
+    <!-- Signup Button -->
+    <br>
+    <button onclick="window.location.href='signup.html'">Sign Up</button>
+
     <!-- Display Messages -->
     <div id="message"></div>
 
-    <!-- Include JavaScript for user registration and login -->
+    <!-- Include JavaScript for user login -->
     <script src="js/userRegistration.js"></script>
 </body>
-</html>
+</html> 

@@ -2,13 +2,20 @@
 function createProduct() {
     const name = document.getElementById('productName').value;
     const price = document.getElementById('productPrice').value;
+    const discount = document.getElementById('productDiscount').value;
+    
+    const productData = {
+        name: name,
+        price: price,
+        discount: discount // Include discount in the data sent to the server
+    };
 
     fetch('/productapp/products', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: name, price: price }),
+         body: JSON.stringify(productData),
     })
     .then(response => {
         if (response.ok) {
@@ -31,11 +38,13 @@ function updateProduct() {
     const productId = document.getElementById('productId').value;
     const name = document.getElementById('editProductName').value;
     const price = document.getElementById('editProductPrice').value;
+    const discount = document.getElementById('productDiscount').value;
 
     // Construct the request payload
     const productData = {
         name: name,
-        price: parseFloat(price) // Ensure price is sent as a float
+        price: parseFloat(price), // Ensure price is sent as a float
+        discount: discount 
     };
 
     // Send the PUT request to update the product
@@ -82,6 +91,8 @@ function listProducts() {
                 <tr>
                     <td>${product.name}</td>
                     <td>${product.price}</td>
+                    <td>${product.discount}</td>
+                     <td>${product.finalPrice}</td>
                     <td>
                         <button onclick="editProduct(${product.id})">Edit</button>
                         <button onclick="deleteProduct(${product.id})">Delete</button>
@@ -125,6 +136,7 @@ function populateFormData() {
             document.getElementById('productId').value = product.id;
             document.getElementById('editProductName').value = product.name;
             document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editproductDiscount').value = product.discount;
         })
         .catch(error => {
             console.error('Error:', error);

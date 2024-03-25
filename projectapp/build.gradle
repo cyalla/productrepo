@@ -14,11 +14,16 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    //implementation 'org.springframework.boot:spring-boot-starter-security'
     // Tomcat provided by the server when deploying externally
     providedCompile 'org.springframework.boot:spring-boot-starter-tomcat'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'mysql:mysql-connector-java'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    //testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation('org.junit.jupiter:junit-jupiter:5.7.0') 
+    testImplementation 'org.mockito:mockito-core:3.+' // Use the appropriate version
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.+'
 }
 
 task copyDependencies(type: Copy) {
@@ -26,7 +31,19 @@ task copyDependencies(type: Copy) {
     into 'libs'
 }
 
+task copyTestDependencies(type: Copy) {
+    from configurations.testRuntimeClasspath
+    into 'libs'
+}
+
+// Optionally, you can make this task depend on another task like 'test' so it runs automatically afterwards
+tasks.test.finalizedBy(copyTestDependencies)
+
 war {
     archiveFileName = 'productapp.war'
     dependsOn copyDependencies 
+}
+
+test {
+    useJUnitPlatform()
 }

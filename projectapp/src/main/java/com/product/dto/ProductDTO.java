@@ -4,15 +4,20 @@ public class ProductDTO {
 
     private Long id;
     private String name;
-    private double price;
+    private String price;
+    private String discount;
+    private String finalPrice; 
 
-    // Constructors, getters, and setters
+
+	// Constructors, getters, and setters
     public ProductDTO() {}
 
-    public ProductDTO(Long id, String name, double price) {
+    public ProductDTO(Long id, String name, String price,String discount,String finalPrice) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.discount = discount;
+        this.finalPrice = finalPrice;
     }
 
     // Getters and setters
@@ -32,11 +37,27 @@ public class ProductDTO {
         this.name = name;
     }
 
-    public double getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(String price) {
         this.price = price;
-    }
+    } 
+
+    public String getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(String discount) {
+		this.discount = discount;
+	}
+	
+    public String getFinalPrice() {
+		return finalPrice;
+	}
+
+	public void setFinalPrice(String finalPrice) {
+		this.finalPrice = finalPrice;
+	}
 }

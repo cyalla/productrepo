@@ -11,17 +11,21 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private double discount;
     
     private String name;
     private double price;
+    private double finalPrice; 
 
-    // Constructors, getters, and setters
+	// Constructors, getters, and setters
     public Product() {}
 
-    public Product(Long id, String name, double price) {
+    public Product(Long id, String name, double price,double discount,double finalPrice) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.discount = discount;
+        this.finalPrice = finalPrice;
     }
 
     // Getters and setters
@@ -48,4 +52,21 @@ public class Product {
     public void setPrice(double price) {
         this.price = price;
     }
+    
+    public double getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(double discount) {
+		this.discount = discount;
+	}
+	
+
+    public double getFinalPrice() {
+		return finalPrice;
+	}
+
+	public void setFinalPrice(double finalPrice) {
+		this.finalPrice = finalPrice;
+	}
 }

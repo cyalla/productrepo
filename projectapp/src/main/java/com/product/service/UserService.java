@@ -23,6 +23,7 @@ public class UserService {
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setAddress(userDTO.getAddress()); // Make sure this can handle null values since address is optional
+        System.out.println("given address == "+userDTO.getAddress().toString());
         userRepository.save(user);
         userRepository.flush();
         return user;

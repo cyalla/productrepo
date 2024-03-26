@@ -24,6 +24,10 @@ public class User {
 
     @Column(nullable = true)
     private String address;
+    
+    @Column(nullable = true)
+    private String pincode;
+
 
 	public Long getId() {
 		return id;
@@ -72,6 +76,14 @@ public class User {
 	public void setAddress(String address) {
 		this.address = address;
 	}
+	
+	public String getPincode() {
+		return pincode;
+	}
 
+	public void setPincode(String pincode) {
+		this.pincode = pincode;
+	} 
+	
 }
 

@@ -17,13 +17,15 @@ function register() {
     var firstName = document.getElementById("regFirstName").value;
     var lastName = document.getElementById("regLastName").value;
     var address = document.getElementById("regAddress").value; // Optional
-
+    var pincodeElement = document.getElementById("regPincode");
+    var pincode = pincodeElement ? pincodeElement.value : "";
     var data = {
         username: username,
         password: password,
         firstName: firstName,
         lastName: lastName,
-        address: address // Send as is, backend will handle it as optional
+        address: address, // Send as is, backend will handle it as optional
+        pincode:pincode
     };
 
     fetch('/productapp/register', {

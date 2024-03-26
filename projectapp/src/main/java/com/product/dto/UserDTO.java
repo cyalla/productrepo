@@ -7,6 +7,7 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String address;
+    private String pincode; 
     
 	public String getUsername() {
 		return username;
@@ -37,5 +38,11 @@ public class UserDTO {
 	}
 	public void setAddress(String address) {
 		this.address = address;
+	}
+	public String getPincode() {
+		return pincode;
+	}
+	public void setPincode(String pincode) {
+		this.pincode = pincode;
 	}
 }

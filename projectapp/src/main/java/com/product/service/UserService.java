@@ -12,8 +12,7 @@ import com.product.repository.UserRepository;
 public class UserService {
 
     @Autowired
-    private UserRepository userRepository;
- 
+    private UserRepository userRepository; 
 
     public User registerUser(UserDTO userDTO) {
         User user = new User();
@@ -22,8 +21,12 @@ public class UserService {
         // Populate additional fields from UserDTO
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
-        user.setAddress(userDTO.getAddress()); // Make sure this can handle null values since address is optional
-        System.out.println("given address == "+userDTO.getAddress().toString());
+        user.setAddress(userDTO.getAddress()); // Make sure this can handle null values since address is optional 
+        String pincodeStr = userDTO.getPincode();
+        int pincode = Integer.parseInt(pincodeStr); 
+        if(pincode>0) {
+        	  user.setPincode(pincodeStr); 
+        }  
         userRepository.save(user);
         userRepository.flush();
         return user;

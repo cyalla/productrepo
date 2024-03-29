@@ -1,30 +1,39 @@
 plugins {
     id 'war'
-    id 'org.springframework.boot' version '2.6.3'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    //id 'org.springframework.boot' version '2.6.3'
+    //id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 group = 'com.product'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+//sourceCompatibility = '11'
 
 repositories {
-    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+    // Comment out or remove mavenCentral if you don't want to use any remote repositories
+    // mavenCentral()
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    //implementation 'org.springframework.boot:spring-boot-starter-web'
     //implementation 'org.springframework.boot:spring-boot-starter-security'
-    // Tomcat provided by the server when deploying externally
-    providedCompile 'org.springframework.boot:spring-boot-starter-tomcat'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'mysql:mysql-connector-java'
-    implementation 'com.oracle.database.jdbc:ojdbc8:19.6.0.0' 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    //testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation('org.junit.jupiter:junit-jupiter:5.7.0') 
-    testImplementation 'org.mockito:mockito-core:3.+' // Use the appropriate version
-    testImplementation 'org.mockito:mockito-junit-jupiter:3.+' 
+    //providedCompile 'org.springframework.boot:spring-boot-starter-tomcat'
+    //implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Use local jar files for MySQL and Oracle JDBC drivers
+    // Comment out or adjust these lines to point to your local jars if they are not available in the remote repository
+    // implementation files('libs/mysql-connector-java.jar')
+    // implementation files('libs/ojdbc8.jar')
+
+    // If your jars are directly in the libs folder without subdirectories, you can use this simpler form
+    implementation fileTree(dir: 'libs', include: '*.jar')
+
+    //testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    //testImplementation('org.junit.jupiter:junit-jupiter:5.7.0')
+    //testImplementation 'org.mockito:mockito-core:3.+'
+    //testImplementation 'org.mockito:mockito-junit-jupiter:3.+'
 }
 
 task copyDependencies(type: Copy) {
@@ -38,13 +47,10 @@ task copyTestDependencies(type: Copy) {
 }
 
 // Optionally, you can make this task depend on another task like 'test' so it runs automatically afterwards
-tasks.test.finalizedBy(copyTestDependencies)
+//tasks.test.finalizedBy(copyTestDependencies)
 
 war {
     archiveFileName = 'productapp.war'
-    dependsOn copyDependencies 
+    //dependsOn copyDependencies
 }
 
-test {
-    useJUnitPlatform()
-}

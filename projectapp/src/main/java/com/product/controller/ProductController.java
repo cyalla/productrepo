@@ -27,11 +27,11 @@ public class ProductController {
         for (Product product : products) {
         	  double priceSave = product.getPrice();
               String priceStr = String.valueOf(priceSave);
-              double discountSave = product.getDiscount();
-              String discountStr = String.valueOf(discountSave);
+              double taxSave = product.getTax();
+              String taxStr = String.valueOf(taxSave);
               double finalPriceSave = product.getFinalPrice();
               String finalPriceStr = String.valueOf(finalPriceSave);
-              productDTOs.add(new ProductDTO(product.getId(), product.getName(), priceStr, discountStr, finalPriceStr));
+              productDTOs.add(new ProductDTO(product.getId(), product.getName(), priceStr, taxStr, finalPriceStr));
         }
         return productDTOs;
     }
@@ -43,22 +43,21 @@ public class ProductController {
         String price = productDTO.getPrice();
         double priceDouble = Double.parseDouble(price);
         product.setPrice(priceDouble);
-        String discount = productDTO.getDiscount();
-        double discountDouble = Double.parseDouble(discount);
-        product.setDiscount(discountDouble);
+        String tax = productDTO.getTax();
+        double taxDouble = Double.parseDouble(tax);
+        product.setTax(taxDouble);
 
-        // Assuming discount is a percentage value. Calculate final price.
-        double finalPrice = product.getPrice()* (1.0 - (product.getDiscount()/ 100.0));
+        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
         product.setFinalPrice(finalPrice);
 
         Product savedProduct = productService.save(product);
         double priceSave = savedProduct.getPrice();
         String priceStr = String.valueOf(priceSave);
-        double discountSave = savedProduct.getDiscount();
-        String discountStr = String.valueOf(discountSave);
+        double taxSave = savedProduct.getTax();
+        String taxStr = String.valueOf(taxSave);
         double finalPriceSave = savedProduct.getFinalPrice();
         String finalPriceStr = String.valueOf(finalPriceSave);
-        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, discountStr, finalPriceStr);
+        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
     }
 
     @GetMapping("/{id}")
@@ -67,12 +66,12 @@ public class ProductController {
                              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
         double priceSave = product.getPrice();
         String priceStr = String.valueOf(priceSave);
-        double discountSave = product.getDiscount();
-        String discountStr = String.valueOf(discountSave);
+        double taxSave = product.getTax();
+        String taxStr = String.valueOf(taxSave);
         double finalPriceSave = product.getFinalPrice();
         String finalPriceStr = String.valueOf(finalPriceSave);
         // Conversion to ProductDTO and returning the response
-        return ResponseEntity.ok(new ProductDTO(product.getId(), product.getName(), priceStr, discountStr, finalPriceStr));
+        return ResponseEntity.ok(new ProductDTO(product.getId(), product.getName(), priceStr, taxStr, finalPriceStr));
     } 
     
     @PutMapping("/{id}")
@@ -84,12 +83,10 @@ public class ProductController {
             String price = productDTO.getPrice();
             double priceDouble = Double.parseDouble(price);
             product.setPrice(priceDouble);
-            String discount = productDTO.getDiscount();
-            double discountDouble = Double.parseDouble(discount);
-            product.setDiscount(discountDouble);
-
-            // Assuming discount is a percentage value. Calculate final price.
-            double finalPrice = product.getPrice()* (1.0 - (product.getDiscount()/ 100.0));
+            String tax = productDTO.getTax();
+            double taxtDouble = Double.parseDouble(tax);
+            product.setTax(taxtDouble);
+            double finalPrice = product.getPrice()* (1.0 - (product.getTax()/ 100.0));
             product.setFinalPrice(finalPrice);
             
  
@@ -97,12 +94,12 @@ public class ProductController {
             
             double priceSave = updatedProduct.getPrice();
             String priceStr = String.valueOf(priceSave);
-            double discountSave = updatedProduct.getDiscount();
-            String discountStr = String.valueOf(discountSave);
+            double taxSave = updatedProduct.getTax();
+            String taxStr = String.valueOf(taxSave);
             double finalPriceSave = updatedProduct.getFinalPrice();
             String finalPriceStr = String.valueOf(finalPriceSave);
             
-            return ResponseEntity.ok(new ProductDTO(updatedProduct.getId(), updatedProduct.getName(), priceStr, discountStr, finalPriceStr));
+            return ResponseEntity.ok(new ProductDTO(updatedProduct.getId(), updatedProduct.getName(), priceStr, taxStr, finalPriceStr));
         } else {
             return ResponseEntity.notFound().build();
         }

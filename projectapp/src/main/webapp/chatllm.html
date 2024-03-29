@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REST API Example</title>
+<script>
+function callAPI() {
+    // Get the input text from the form
+    var inputText = document.getElementById('inputText').value;
+
+    // Payload data
+    var payload = {
+        text: inputText
+    };
+
+    // URL of the REST API endpoint
+    var apiUrl = 'http://localhost:5000/getSchedule'; 
+
+    // Optional request headers
+    var headers = {
+        'Content-Type': 'application/json'
+        // Add any other headers if required
+    };
+
+    // Making the HTTP POST request to the API endpoint
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        // Check if the response status is OK (200)
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        // Parse the JSON response
+        return response.json();
+    })
+    .then(data => {
+        // Handle the data returned by the API
+        document.getElementById('result').textContent = JSON.stringify(data);
+    })
+    .catch(error => {
+        // Handle any errors that occurred during the fetch
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
+</script>
+</head>
+<body>
+<h1>REST API Example</h1>
+<form>
+    <label for="inputText">Enter Text:</label><br>
+    <input type="text" id="inputText" name="inputText"><br><br>
+    <button type="button" onclick="callAPI()">Call API</button>
+</form>
+<div id="result"></div>
+</body>
+</html>

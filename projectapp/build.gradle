@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.product'
-version = '0.0.1-SNAPSHOT'
+//version = '0.0.1-SNAPSHOT'
 //sourceCompatibility = '11'
 
 repositories {
@@ -13,7 +13,7 @@ repositories {
         dirs 'libs'
     }
     // Comment out or remove mavenCentral if you don't want to use any remote repositories
-    // mavenCentral()
+    //mavenCentral()
 }
 
 dependencies {
@@ -29,6 +29,9 @@ dependencies {
 
     // If your jars are directly in the libs folder without subdirectories, you can use this simpler form
     implementation fileTree(dir: 'libs', include: '*.jar')
+    
+    //testImplementation 'org.springframework.boot:spring-boot-starter-test:2.4.5'
+    
 
     //testImplementation 'org.springframework.boot:spring-boot-starter-test'
     //testImplementation('org.junit.jupiter:junit-jupiter:5.7.0')
@@ -54,3 +57,6 @@ war {
     //dependsOn copyDependencies
 }
 
+test {
+    useJUnitPlatform()
+}

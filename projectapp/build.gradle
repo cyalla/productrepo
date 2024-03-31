@@ -1,62 +1,79 @@
+import javax.mail.Session
+import javax.mail.internet.MimeMessage
+import javax.mail.internet.InternetAddress
+import javax.mail.Transport
+import javax.mail.MessagingException
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication
+ 
+buildscript {
+    repositories {
+        flatDir {
+            dirs 'libs' // Assuming 'libs' is at the root of your project
+        }
+    }
+    dependencies {
+        classpath name: 'javax.mail', version: '1.6.2' 
+        classpath name: 'javax.activation', version:  '1.2.0'
+    }
+}
+
 plugins {
     id 'war'
-    //id 'org.springframework.boot' version '2.6.3'
-    //id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 group = 'com.product'
-//version = '0.0.1-SNAPSHOT'
-//sourceCompatibility = '11'
+
 
 repositories {
     flatDir {
         dirs 'libs'
     }
-    // Comment out or remove mavenCentral if you don't want to use any remote repositories
-    //mavenCentral()
 }
 
-dependencies {
-    //implementation 'org.springframework.boot:spring-boot-starter-web'
-    //implementation 'org.springframework.boot:spring-boot-starter-security'
-    //providedCompile 'org.springframework.boot:spring-boot-starter-tomcat'
-    //implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-    // Use local jar files for MySQL and Oracle JDBC drivers
-    // Comment out or adjust these lines to point to your local jars if they are not available in the remote repository
-    // implementation files('libs/mysql-connector-java.jar')
-    // implementation files('libs/ojdbc8.jar')
-
+dependencies { 
     // If your jars are directly in the libs folder without subdirectories, you can use this simpler form
-    implementation fileTree(dir: 'libs', include: '*.jar')
-    
-    //testImplementation 'org.springframework.boot:spring-boot-starter-test:2.4.5'
-    
-
-    //testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    //testImplementation('org.junit.jupiter:junit-jupiter:5.7.0')
-    //testImplementation 'org.mockito:mockito-core:3.+'
-    //testImplementation 'org.mockito:mockito-junit-jupiter:3.+'
+    implementation fileTree(dir: 'libs', include: '*.jar') 
 }
 
-task copyDependencies(type: Copy) {
-    from configurations.runtimeClasspath
-    into 'libs'
-}
-
-task copyTestDependencies(type: Copy) {
-    from configurations.testRuntimeClasspath
-    into 'libs'
-}
-
-// Optionally, you can make this task depend on another task like 'test' so it runs automatically afterwards
-//tasks.test.finalizedBy(copyTestDependencies)
 
 war {
     archiveFileName = 'productapp.war'
-    //dependsOn copyDependencies
 }
+
+// Task to send email with HTML test report
+task sendEmail {
+    doLast {
+        String reportPath = "${buildDir}/reports/tests/test/index.html" // Adjust if necessary
+        File reportFile = new File(reportPath)
+        String htmlContent = reportFile.text
+
+        String host = "internal-mail-router.oracle.com" // Use your internal SMTP server address
+        Properties props = System.getProperties()
+        props.put("mail.smtp.host", host)
+        props.put("mail.smtp.port", "25") // Standard SMTP port, adjust if your server uses a different port
+        // Note: No authentication properties are set here
+
+        Session session = Session.getDefaultInstance(props, null) // No Authenticator needed
+
+        try {
+            MimeMessage message = new MimeMessage(session)
+            message.setFrom(new InternetAddress("chandra.sekhar.yalla@oracle.com")) // Adjust sender email
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress("chandra.sekhar.yalla@oracle.com")) // Adjust recipient email
+            message.setSubject("Gradle Test Results")
+            message.setContent(htmlContent, "text/html; charset=utf-8")
+
+            Transport.send(message)
+
+            println 'Email sent successfully.'
+        } catch (MessagingException me) {
+            me.printStackTrace()
+        }
+    }
+}
+ 
 
 test {
     useJUnitPlatform()
+    finalizedBy sendEmail
 }

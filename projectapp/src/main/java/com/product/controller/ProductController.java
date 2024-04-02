@@ -37,29 +37,52 @@ public class ProductController {
     }
     
     @PostMapping
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-    	Product product = new Product();
+public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    try {
+        if (productDTO == null || productDTO.isEmpty()) {
+            throw new IllegalArgumentException("Product DTO is empty or null.");
+        }
+
+        Product product = new Product();
         product.setName(productDTO.getName());
-        String price = productDTO.getPrice();
-        double priceDouble = Double.parseDouble(price);
+
+        if (productDTO.getPrice() == null || productDTO.getPrice().isEmpty()) {
+            throw new IllegalArgumentException("Price is empty or null.");
+        }
+        double priceDouble = Double.parseDouble(productDTO.getPrice());
         product.setPrice(priceDouble);
-        String tax = productDTO.getTax();
-        double taxDouble = Double.parseDouble(tax);
+
+        if (productDTO.getTax() == null || productDTO.getTax().isEmpty()) {
+            throw new IllegalArgumentException("Tax is empty or null.");
+        }
+        double taxDouble = Double.parseDouble(productDTO.getTax());
         product.setTax(taxDouble);
 
-        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
+        double finalPrice = product.getPrice() * (1.0 + (product.getTax() / 100.0));
         product.setFinalPrice(finalPrice);
 
         Product savedProduct = productService.save(product);
+
+        if (savedProduct == null) {
+            throw new IllegalArgumentException("Product could not be saved.");
+        }
+
         double priceSave = savedProduct.getPrice();
         String priceStr = String.valueOf(priceSave);
+
         double taxSave = savedProduct.getTax();
         String taxStr = String.valueOf(taxSave);
+
         double finalPriceSave = savedProduct.getFinalPrice();
         String finalPriceStr = String.valueOf(finalPriceSave);
-        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
-    }
 
+        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
+    } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Error parsing number.", e);
+    } catch (Exception e) {
+        throw new GlobalExceptionHandler().handleException(e);
+    }
+}
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Product product = productService.findById(id)

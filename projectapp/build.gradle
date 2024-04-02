@@ -19,8 +19,12 @@ buildscript {
 }
 
 plugins {
+    id 'java' 
     id 'war'
 }
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 group = 'com.product'
 

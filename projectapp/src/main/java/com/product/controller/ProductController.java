@@ -19,6 +19,9 @@ import java.util.List;
 public class ProductController {
     @Autowired
     private ProductService productService;
+    
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProductController.class);
+
 
     @GetMapping
     public List<ProductDTO> getAllProducts() {

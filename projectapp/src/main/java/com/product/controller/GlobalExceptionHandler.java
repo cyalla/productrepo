@@ -10,10 +10,14 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+	private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+	
     // Handler for specific exceptions
     // Example: IllegalArgumentException
     @ExceptionHandler(IllegalArgumentException.class)
@@ -52,5 +56,11 @@ public class GlobalExceptionHandler {
         PrintWriter pw = new PrintWriter(sw);
         throwable.printStackTrace(pw);
         return sw.toString(); // stack trace as a string
+    }
+    
+    public void handleException(Exception e) {
+        // Log the exception with a custom message
+        logger.error("An exception occurred: ", e);
+        
     }
 }

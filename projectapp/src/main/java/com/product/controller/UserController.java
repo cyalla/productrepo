@@ -20,11 +20,23 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+    try {
+        if (userDTO == null || userDTO.isEmpty()) {
+            throw new IllegalArgumentException("Invalid UserDTO provided.");
+        }
         User newUser = userService.registerUser(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    } catch (IllegalArgumentException e) {
+        // Handle IllegalArgumentException specific to registerUser method
+        logger.error("Failed to register user due to {}", e.getMessage(), e);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+        // Handle other exceptions in GlobalExceptionHandler
+        logger.error("An error occurred while registering the user.", e);
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
+}
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDTO loginDTO) {
         User user = userService.loginUser(loginDTO);

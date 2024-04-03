@@ -40,19 +40,24 @@ public class ProductController {
     }
     
     @PostMapping
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-    	Product product = new Product();
+public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    try {
+        Product product = new Product();
         product.setName(productDTO.getName());
         String price = productDTO.getPrice();
+        if (price == null || price.isEmpty()) {
+            throw new IllegalArgumentException("Price cannot be null or empty");
+        }
         double priceDouble = Double.parseDouble(price);
         product.setPrice(priceDouble);
         String tax = productDTO.getTax();
+        if (tax == null || tax.isEmpty()) {
+            throw new IllegalArgumentException("Tax cannot be null or empty");
+        }
         double taxDouble = Double.parseDouble(tax);
         product.setTax(taxDouble);
-
-        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
+        double finalPrice = product.getPrice() * (1.0 + (product.getTax() / 100.0));
         product.setFinalPrice(finalPrice);
-
         Product savedProduct = productService.save(product);
         double priceSave = savedProduct.getPrice();
         String priceStr = String.valueOf(priceSave);
@@ -61,8 +66,12 @@ public class ProductController {
         double finalPriceSave = savedProduct.getFinalPrice();
         String finalPriceStr = String.valueOf(finalPriceSave);
         return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
+    } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Invalid price or tax format", e);
+    } catch (Exception e) {
+        throw new RuntimeException("Error creating product", e);
     }
-
+}
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Product product = productService.findById(id)

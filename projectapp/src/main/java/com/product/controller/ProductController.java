@@ -40,29 +40,47 @@ public class ProductController {
     }
     
     @PostMapping
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-    	Product product = new Product();
-        product.setName(productDTO.getName());
-        String price = productDTO.getPrice();
-        double priceDouble = Double.parseDouble(price);
-        product.setPrice(priceDouble);
-        String tax = productDTO.getTax();
-        double taxDouble = Double.parseDouble(tax);
-        product.setTax(taxDouble);
+public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    Product product = new Product();
 
-        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
-        product.setFinalPrice(finalPrice);
-
-        Product savedProduct = productService.save(product);
-        double priceSave = savedProduct.getPrice();
-        String priceStr = String.valueOf(priceSave);
-        double taxSave = savedProduct.getTax();
-        String taxStr = String.valueOf(taxSave);
-        double finalPriceSave = savedProduct.getFinalPrice();
-        String finalPriceStr = String.valueOf(finalPriceSave);
-        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
+    if (productDTO.getName() == null || productDTO.getName().isEmpty()) {
+        throw new IllegalArgumentException("Name cannot be empty");
     }
 
+    if (productDTO.getPrice() == null || productDTO.getPrice().isEmpty()) {
+        throw new IllegalArgumentException("Price cannot be empty");
+    }
+
+    try {
+        double priceDouble = Double.parseDouble(productDTO.getPrice());
+        product.setPrice(priceDouble);
+    } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Invalid price format", e);
+    }
+
+    try {
+        double taxDouble = Double.parseDouble(productDTO.getTax());
+        product.setTax(taxDouble);
+    } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Invalid tax format", e);
+    }
+
+    double finalPrice = product.getPrice() * (1.0 + (product.getTax() / 100.0));
+    product.setFinalPrice(finalPrice);
+
+    Product savedProduct = productService.save(product);
+
+    if (savedProduct == null) {
+        throw new IllegalArgumentException("Product could not be saved");
+    }
+
+    double priceSave = savedProduct.getPrice();
+    double taxSave = savedProduct.getTax();
+    double finalPriceSave = savedProduct.getFinalPrice();
+
+    return new ProductDTO(savedProduct.getId(), savedProduct.getName(),
+        String.valueOf(priceSave), String.valueOf(taxSave), String.valueOf(finalPriceSave));
+}
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Product product = productService.findById(id)

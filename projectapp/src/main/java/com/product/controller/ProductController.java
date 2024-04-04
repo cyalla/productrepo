@@ -40,29 +40,42 @@ public class ProductController {
     }
     
     @PostMapping
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-    	Product product = new Product();
-        product.setName(productDTO.getName());
-        String price = productDTO.getPrice();
-        double priceDouble = Double.parseDouble(price);
-        product.setPrice(priceDouble);
-        String tax = productDTO.getTax();
-        double taxDouble = Double.parseDouble(tax);
-        product.setTax(taxDouble);
-
-        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
-        product.setFinalPrice(finalPrice);
-
-        Product savedProduct = productService.save(product);
-        double priceSave = savedProduct.getPrice();
-        String priceStr = String.valueOf(priceSave);
-        double taxSave = savedProduct.getTax();
-        String taxStr = String.valueOf(taxSave);
-        double finalPriceSave = savedProduct.getFinalPrice();
-        String finalPriceStr = String.valueOf(finalPriceSave);
-        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
+public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    if (productDTO == null) {
+        throw new IllegalArgumentException("Invalid productDTO parameter");
     }
 
+    if (productDTO.getName() == null || productDTO.getName().trim().isEmpty()) {
+        throw new IllegalArgumentException("Invalid product name");
+    }
+
+    if (String.isEmpty(productDTO.getPrice()) || Double.parseDouble(productDTO.getPrice()) <= 0) {
+        throw new IllegalArgumentException("Price value cannot be empty or negative");
+    }
+
+    if (String.isEmpty(productDTO.getTax()) || Double.parseDouble(productDTO.getTax()) < 0) {
+        throw new IllegalArgumentException("Tax value cannot be negative");
+    }
+
+    Product product = new Product();
+    product.setName(productDTO.getName());
+    double priceDouble = Double.parseDouble(productDTO.getPrice());
+    product.setPrice(priceDouble);
+    double taxDouble = Double.parseDouble(productDTO.getTax());
+    product.setTax(taxDouble);
+
+    double finalPrice = product.getPrice() * (1.0 + (product.getTax() / 100.0));
+    product.setFinalPrice(finalPrice);
+
+    Product savedProduct = productService.save(product);
+    if (savedProduct == null) {
+        throw new IllegalArgumentException("Failed to save the product");
+    }
+
+    return new ProductDTO(savedProduct.getId(), savedProduct.getName(),
+        String.valueOf(savedProduct.getPrice()), String.valueOf(savedProduct.getTax()),
+        String.valueOf(savedProduct.getFinalPrice()));
+}
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Product product = productService.findById(id)

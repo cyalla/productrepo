@@ -23,11 +23,16 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
-        User newUser = userService.registerUser(userDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+    if (userDTO == null || userDTO.isEmpty()) {
+        return ResponseEntity.badRequest().body("Invalid userDTO provided.");
     }
-
+    User newUser = userService.registerUser(userDTO);
+    if (newUser == null) {
+        return ResponseEntity.internalServerError().body("An error occurred while registering the user.");
+    }
+    return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+}
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDTO loginDTO) {
         User user = userService.loginUser(loginDTO);

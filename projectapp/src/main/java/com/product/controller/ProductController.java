@@ -1,3 +1,4 @@
+
 package com.product.controller;
  
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,28 +41,42 @@ public class ProductController {
     }
     
     @PostMapping
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-    	Product product = new Product();
-        product.setName(productDTO.getName());
-        String price = productDTO.getPrice();
-        double priceDouble = Double.parseDouble(price);
-        product.setPrice(priceDouble);
-        String tax = productDTO.getTax();
-        double taxDouble = Double.parseDouble(tax);
-        product.setTax(taxDouble);
 
-        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
-        product.setFinalPrice(finalPrice);
+public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    try {
+        if (productDTO == null || productDTO.getName() == null || productDTO.getPrice() == null || productDTO.getTax() == null) {
+            throw new IllegalArgumentException("Invalid productDTO");
+        }
+
+        Product product = new Product();
+        product.setName(productDTO.getName());
+        product.setPrice(productDTO.getPrice());
+        product.setTax(productDTO.getTax());
+        product.setFinalPrice(calculateFinalPrice(productDTO));
 
         Product savedProduct = productService.save(product);
-        double priceSave = savedProduct.getPrice();
-        String priceStr = String.valueOf(priceSave);
-        double taxSave = savedProduct.getTax();
-        String taxStr = String.valueOf(taxSave);
-        double finalPriceSave = savedProduct.getFinalPrice();
-        String finalPriceStr = String.valueOf(finalPriceSave);
-        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
+
+        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), savedProduct.getPrice(), savedProduct.getTax(), savedProduct.getFinalPrice());
+    } catch (IllegalArgumentException e) {
+        logger.error("IllegalArgumentException: {}", e.getMessage());
+        return new ErrorDTO("Invalid input");
+    } catch (Exception e) {
+        logger.error("An error occurred: {}", e.getMessage());
+        return new ErrorDTO("Internal server error");
     }
+}
+
+private double calculateFinalPrice(ProductDTO productDTO) {
+    double price = productDTO.getPrice();
+    double tax = productDTO.getTax();
+
+    if (price <= 0 || tax <= 0) {
+        throw new IllegalArgumentException("Price and tax must be positive values");
+    }
+
+    double finalPrice = price * (1.0 + (tax / 100.0));
+    return finalPrice;
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {

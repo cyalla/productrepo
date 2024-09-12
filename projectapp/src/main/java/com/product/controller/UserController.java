@@ -23,11 +23,20 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+    try {
         User newUser = userService.registerUser(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    } catch (IllegalArgumentException e) {
+        // Handle specific IllegalArgumentException with custom logic or error response
+        log.error("IllegalArgumentException occurred during user registration:", e);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+        // Handle generic Exception with custom logic or error response
+        log.error("An error occurred during user registration:", e);
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
+}
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDTO loginDTO) {
         User user = userService.loginUser(loginDTO);

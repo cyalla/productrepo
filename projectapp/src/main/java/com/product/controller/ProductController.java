@@ -40,28 +40,53 @@ public class ProductController {
     }
     
     @PostMapping
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-    	Product product = new Product();
+
+public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    try {
+        Product product = new Product();
         product.setName(productDTO.getName());
-        String price = productDTO.getPrice();
-        double priceDouble = Double.parseDouble(price);
+
+        if (productDTO.getPrice() == null || productDTO.getPrice().isEmpty()) {
+            throw new IllegalArgumentException("Price cannot be empty");
+        }
+
+        double priceDouble = Double.parseDouble(productDTO.getPrice());
         product.setPrice(priceDouble);
-        String tax = productDTO.getTax();
-        double taxDouble = Double.parseDouble(tax);
+
+        if (productDTO.getTax() == null || productDTO.getTax().isEmpty()) {
+            throw new IllegalArgumentException("Tax cannot be empty");
+        }
+
+        double taxDouble = Double.parseDouble(productDTO.getTax());
         product.setTax(taxDouble);
 
-        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
+        double finalPrice = product.getPrice() * (1.0 + (product.getTax() / 100.0));
         product.setFinalPrice(finalPrice);
 
         Product savedProduct = productService.save(product);
+
+        if (savedProduct == null) {
+            throw new IllegalArgumentException("Product creation failed");
+        }
+
         double priceSave = savedProduct.getPrice();
         String priceStr = String.valueOf(priceSave);
+
         double taxSave = savedProduct.getTax();
         String taxStr = String.valueOf(taxSave);
+
         double finalPriceSave = savedProduct.getFinalPrice();
         String finalPriceStr = String.valueOf(finalPriceSave);
+
         return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
+    } catch (IllegalArgumentException e) {
+        logger.error("IllegalArgumentException occurred: {}", e.getMessage(), e);
+        return new ErrorDTO(e.getMessage());
+    } catch (Exception e) {
+        logger.error("An error occurred while creating the product:", e);
+        return new ErrorDTO("An error occurred during product creation");
     }
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {

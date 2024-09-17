@@ -40,8 +40,9 @@ public class ProductController {
     }
     
     @PostMapping
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-    	Product product = new Product();
+public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    try {
+        Product product = new Product();
         product.setName(productDTO.getName());
         String price = productDTO.getPrice();
         double priceDouble = Double.parseDouble(price);
@@ -49,10 +50,8 @@ public class ProductController {
         String tax = productDTO.getTax();
         double taxDouble = Double.parseDouble(tax);
         product.setTax(taxDouble);
-
-        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
+        double finalPrice = product.getPrice() * (1.0 + (product.getTax() / 100.0));
         product.setFinalPrice(finalPrice);
-
         Product savedProduct = productService.save(product);
         double priceSave = savedProduct.getPrice();
         String priceStr = String.valueOf(priceSave);
@@ -61,8 +60,16 @@ public class ProductController {
         double finalPriceSave = savedProduct.getFinalPrice();
         String finalPriceStr = String.valueOf(finalPriceSave);
         return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
+    } catch (IllegalArgumentException e) {
+        // Log and handle illegal arguments gracefully, such as validation or rethrowing the exception
+        logger.error("Illegal argument encountered: {}", e.getMessage(), e);
+        throw e;
+    } catch (Exception e) {
+        // Log and handle other exceptions gracefully, such as propagating the exception to a global error handler
+        logger.error("An error occurred while creating the product:", e);
+        throw new RuntimeException("Error creating product:", e);
     }
-
+}
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Product product = productService.findById(id)

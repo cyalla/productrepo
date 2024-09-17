@@ -40,28 +40,39 @@ public class ProductController {
     }
     
     @PostMapping
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-    	Product product = new Product();
-        product.setName(productDTO.getName());
-        String price = productDTO.getPrice();
-        double priceDouble = Double.parseDouble(price);
-        product.setPrice(priceDouble);
-        String tax = productDTO.getTax();
-        double taxDouble = Double.parseDouble(tax);
-        product.setTax(taxDouble);
 
-        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
-        product.setFinalPrice(finalPrice);
-
-        Product savedProduct = productService.save(product);
-        double priceSave = savedProduct.getPrice();
-        String priceStr = String.valueOf(priceSave);
-        double taxSave = savedProduct.getTax();
-        String taxStr = String.valueOf(taxSave);
-        double finalPriceSave = savedProduct.getFinalPrice();
-        String finalPriceStr = String.valueOf(finalPriceSave);
-        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
+public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    if (productDTO == null) {
+        throw new IllegalArgumentException("Input productDTO cannot be null");
     }
+    if (productDTO.getName() == null || productDTO.getName().trim().isEmpty()) {
+        throw new IllegalArgumentException("Input name is empty or not provided");
+    }
+    if (productDTO.getPrice() == null || productDTO.getPrice().trim().isEmpty()) {
+        throw new IllegalArgumentException("Price is empty or not provided");
+    }
+    if (productDTO.getTax() == null || productDTO.getTax().trim().isEmpty()) {
+        throw new IllegalArgumentException("Tax is empty or not provided");
+    }
+
+    Product product = new Product();
+    product.setName(productDTO.getName());
+    product.setPrice(productDTO.getPrice());
+    product.setTax(productDTO.getTax());
+    product.setFinalPrice(calculateFinalPrice(productDTO.getPrice(), productDTO.getTax()));
+
+    Product savedProduct = productService.save(product);
+
+    return new ProductDTO(savedProduct.getId(), savedProduct.getName(), savedProduct.getPrice(), savedProduct.getTax(), savedProduct.getFinalPrice());
+}
+
+private double calculateFinalPrice(double price, double tax) {
+    if (price <= 0 || tax <= 0) {
+        throw new IllegalArgumentException("Price and tax must be positive numbers");
+    }
+    double finalPrice = price * (1.0 + (tax / 100.0));
+    return finalPrice;
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {

@@ -23,11 +23,20 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+    try {
         User newUser = userService.registerUser(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    } catch (Exception e) {
+        return handleRegistrationException(e);
     }
+}
 
+private ResponseEntity<?> handleRegistrationException(Exception e) {
+    // Log the exception and return an appropriate response
+    logger.error("An error occurred during user registration:", e);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed.");
+}
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDTO loginDTO) {
         User user = userService.loginUser(loginDTO);

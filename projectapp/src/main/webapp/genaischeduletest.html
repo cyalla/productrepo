@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REST API Example</title>
+<script>
+function callAPI() {
+    // Get the input text from the form
+    var inputTemplate = document.getElementById('inputTemplate').value;
+    var inputPrompt = document.getElementById('inputPrompt').value;
+    var inputText = document.getElementById('inputText').value;
+    
+    inputTemplate = inputTemplate.replace(/'/g, '"'); 
+    var inputTemplateParsed = JSON.parse(inputTemplate);
+    
+    inputPromptValue = inputPrompt.replace('{input_string}', inputText)
+    .replace('{schedule_template}', inputTemplateParsed);
+
+    // Payload data
+    var payload = {
+    	template: inputTemplateParsed,
+    	prompt: inputPrompt,
+        text: inputText
+    };
+
+    // URL of the REST API endpoint
+    var apiUrl = 'http://phoenix431339.private5.oaceng02phx.oraclevcn.com:5002/getSchedule'; 
+
+    // Optional request headers
+    var headers = {
+        'Content-Type': 'application/json'
+        // Add any other headers if required
+    };
+
+    // Making the HTTP POST request to the API endpoint
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        // Check if the response status is OK (200)
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        // Parse the JSON response
+        return response.json();
+    })
+    .then(data => {
+        // Handle the data returned by the API
+        var jsondata = JSON.parse(JSON.stringify(data)) 
+        document.getElementById('result').textContent = jsondata.response;
+    })
+    .catch(error => {
+        // Handle any errors that occurred during the fetch
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
+</script>
+</head>
+<body>
+<h1>REST API Example</h1>
+<form>
+    <label for="inputTemplate">Template:</label><br>
+    <textarea id="inputTemplate" name="inputTemplate" rows="5" cols="100"></textarea><br><br>
+    <label for="inputPrompt">Prompt:</label><br>
+    <textarea id="inputPrompt" name="inputPrompt" rows="5" cols="100"></textarea><br><br>
+    <label for="inputText">Text:</label><br>
+    <textarea id="inputText" name="inputText" rows="5" cols="100"></textarea><br><br>
+    <button type="button" onclick="callAPI()">Call API</button>
+</form>
+<pre id="result"></pre>
+</body>
+</html>

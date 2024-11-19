@@ -20,14 +20,16 @@
         <label for="regLastName">Last Name:</label>
         <input type="text" id="regLastName" required><br><br>
         <label for="regAddress">Address:</label>
-        <input type="text" id="regAddress"><br><br> <!-- Made optional -->
+        <input type="text" id="regAddress"><br><br>
+        <label for="regPincode">PinCode:</label>
+        <input type="text" id="regPincode"><br><br>  
         <button type="button" onclick="register()">Sign Up</button>
     </form>
-
-    <!-- Display Messages -->
-    <div id="message"></div>
 
     <!-- Include JavaScript for user registration -->
     <script src="js/userRegistration.js"></script>
 </body>
+
+<div id="errorMessage" style="color: red;"></div>
+
 </html>

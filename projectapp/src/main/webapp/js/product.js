@@ -2,19 +2,34 @@
 function createProduct() {
     const name = document.getElementById('productName').value;
     const price = document.getElementById('productPrice').value;
+    const tax = document.getElementById('productTax').value;
+    
+    const productData = {
+        name: name,
+        price: price,
+        tax: tax 
+    };
 
     fetch('/productapp/products', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: name, price: price }),
+        body: JSON.stringify(productData),
     })
     .then(response => {
         if (response.ok) {
             return response.json();
         } else {
-            throw new Error('Failed to create product');
+            // If the response is not ok, attempt to parse it as JSON to get detailed error information
+            return response.json().then(err => {
+                // Directly constructing an informative error message and setting it in the UI without throwing
+                const errorMsg = `Error ${err.status}: ${err.error} - Message: ${err.message} at ${err.timestamp}`;
+                const errordiv = document.getElementById('errorMessage');
+                errordiv.textContent = errorMsg;
+                // Since we're handling the error here, we stop the promise chain by returning a rejected promise
+                return Promise.reject(new Error(errorMsg));
+            });
         }
     })
     .then(data => {
@@ -22,20 +37,26 @@ function createProduct() {
         window.location.href = 'productlist.html'; // Redirect to the product list
     })
     .catch(error => {
+        // This catch will handle any network errors and errors thrown from within the first then block
         console.error('Error:', error);
+        // Optionally, you could also update the UI with this error message here, if not already set
     });
 }
+
+
 
 function updateProduct() {
     // Retrieve product details from the form
     const productId = document.getElementById('productId').value;
     const name = document.getElementById('editProductName').value;
     const price = document.getElementById('editProductPrice').value;
+    const tax = document.getElementById('productTax').value;
 
     // Construct the request payload
     const productData = {
         name: name,
-        price: parseFloat(price) // Ensure price is sent as a float
+        price: parseFloat(price), // Ensure price is sent as a float
+        tax: tax 
     };
 
     // Send the PUT request to update the product
@@ -82,6 +103,8 @@ function listProducts() {
                 <tr>
                     <td>${product.name}</td>
                     <td>${product.price}</td>
+                    <td>${product.tax}</td>
+                     <td>${product.finalPrice}</td>
                     <td>
                         <button onclick="editProduct(${product.id})">Edit</button>
                         <button onclick="deleteProduct(${product.id})">Delete</button>
@@ -125,6 +148,7 @@ function populateFormData() {
             document.getElementById('productId').value = product.id;
             document.getElementById('editProductName').value = product.name;
             document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editproductTax').value = product.tax;
         })
         .catch(error => {
             console.error('Error:', error);

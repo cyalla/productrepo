@@ -1,0 +1,141 @@
+plugins {
+    id 'war'
+    //id 'org.springframework.boot' version '2.6.3'
+    //id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+}
+
+group = 'com.product'
+//version = '0.0.1-SNAPSHOT'
+//sourceCompatibility = '11'
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    // Comment out or remove mavenCentral if you don't want to use any remote repositories
+    //mavenCentral()
+}
+
+dependencies {
+    //implementation 'org.springframework.boot:spring-boot-starter-web'
+    //implementation 'org.springframework.boot:spring-boot-starter-security'
+    //providedCompile 'org.springframework.boot:spring-boot-starter-tomcat'
+    //implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Use local jar files for MySQL and Oracle JDBC drivers
+    // Comment out or adjust these lines to point to your local jars if they are not available in the remote repository
+    // implementation files('libs/mysql-connector-java.jar')
+    // implementation files('libs/ojdbc8.jar')
+
+    // If your jars are directly in the libs folder without subdirectories, you can use this simpler form
+    implementation fileTree(dir: 'libs', include: '*.jar')
+    
+    //testImplementation 'org.springframework.boot:spring-boot-starter-test:2.4.5'
+    
+
+    //testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    //testImplementation('org.junit.jupiter:junit-jupiter:5.7.0')
+    //testImplementation 'org.mockito:mockito-core:3.+'
+    //testImplementation 'org.mockito:mockito-junit-jupiter:3.+'
+}
+
+// Task to send email with HTML test report
+task sendEmail {
+    doLast {
+        String reportPath = "${buildDir}/reports/tests/test/index.html" // Adjust if necessary
+        String htmlContent = new String(Files.readAllBytes(Paths.get(reportPath)), "UTF-8")
+
+        String host = "smtp.example.com" // Your SMTP host
+        String from = "chandra.sekhar.yalla@oracle.com" // Your email
+        //String pass = "your-email-password" // Your email password
+        Properties props = System.getProperties()
+       // props.put("mail.smtp.starttls.enable", "true")
+        props.put("mail.smtp.host", host)
+        //props.put("mail.smtp.user", from)
+        //props.put("mail.smtp.password", pass)
+        //props.put("mail.smtp.port", "587")
+        //props.put("mail.smtp.auth", "true")
+
+        Session session = Session.getDefaultInstance(props)
+        MimeMessage message = new MimeMessage(session)
+
+        try {
+            message.setFrom(new InternetAddress(from))
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress("recipient@example.com"))
+            message.setSubject("Gradle Test Results")
+
+            // Set the email content to HTML
+            message.setContent(htmlContent, "text/html; charset=utf-8")
+
+            Transport transport = session.getTransport("smtp")
+            transport.connect(host, from, pass)
+            transport.sendMessage(message, message.getAllRecipients())
+            transport.close()
+        } catch (MessagingException me) {
+            me.printStackTrace()
+        }
+    }
+}
+
+
+task sendEmail {
+    doLast {
+        String reportPath = "${buildDir}/reports/tests/test/index.html" // Adjust if necessary
+        File reportFile = new File(reportPath)
+        String htmlContent = reportFile.text
+
+        String host = "smtp.gmail.com"
+        String from = "chandra.sekhar.smtp@gmail.com" // Your Gmail address
+        String pass = "Amazon_123" // Your Gmail password
+        Properties props = System.getProperties()
+        props.put("mail.smtp.starttls.enable", "true")
+        props.put("mail.smtp.host", host)
+        props.put("mail.smtp.user", from)
+        props.put("mail.smtp.password", pass)
+        props.put("mail.smtp.port", "587") // TLS Port
+        props.put("mail.smtp.auth", "true")
+
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(from, pass)
+            }
+        })
+
+        MimeMessage message = new MimeMessage(session)
+
+        try {
+            message.setFrom(new InternetAddress(from))
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress("chandra.sekhar.smtp@gmail.com")) // Adjust recipient email
+            message.setSubject("Gradle Test Results")
+            message.setContent(htmlContent, "text/html; charset=utf-8")
+
+            Transport.send(message)
+
+            println 'Email sent successfully.'
+        } catch (MessagingException me) {
+            me.printStackTrace()
+        }
+    }
+}
+
+task copyDependencies(type: Copy) {
+    from configurations.runtimeClasspath
+    into 'libs'
+}
+
+task copyTestDependencies(type: Copy) {
+    from configurations.testRuntimeClasspath
+    into 'libs'
+}
+
+// Optionally, you can make this task depend on another task like 'test' so it runs automatically afterwards
+//tasks.test.finalizedBy(copyTestDependencies)
+
+war {
+    archiveFileName = 'productapp.war'
+    //dependsOn copyDependencies
+}
+
+test {
+    useJUnitPlatform()
+}

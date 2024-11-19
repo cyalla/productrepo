@@ -9,6 +9,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.product.dto.ProductDTO;
 import com.product.entity.Product;
 import com.product.service.ProductService;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,32 +19,62 @@ import java.util.List;
 public class ProductController {
     @Autowired
     private ProductService productService;
+    
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProductController.class);
+
 
     @GetMapping
     public List<ProductDTO> getAllProducts() {
         List<Product> products = productService.findAll();
         List<ProductDTO> productDTOs = new ArrayList<>();
         for (Product product : products) {
-            productDTOs.add(new ProductDTO(product.getId(), product.getName(), product.getPrice()));
+        	  double priceSave = product.getPrice();
+              String priceStr = String.valueOf(priceSave);
+              double taxSave = product.getTax();
+              String taxStr = String.valueOf(taxSave);
+              double finalPriceSave = product.getFinalPrice();
+              String finalPriceStr = String.valueOf(finalPriceSave);
+              productDTOs.add(new ProductDTO(product.getId(), product.getName(), priceStr, taxStr, finalPriceStr));
         }
         return productDTOs;
     }
     
     @PostMapping
     public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-        Product product = new Product();
+    	Product product = new Product();
         product.setName(productDTO.getName());
-        product.setPrice(productDTO.getPrice());
+        String price = productDTO.getPrice();
+        double priceDouble = Double.parseDouble(price);
+        product.setPrice(priceDouble);
+        String tax = productDTO.getTax();
+        double taxDouble = Double.parseDouble(tax);
+        product.setTax(taxDouble);
+
+        double finalPrice = product.getPrice()* (1.0 + (product.getTax()/ 100.0));
+        product.setFinalPrice(finalPrice);
+
         Product savedProduct = productService.save(product);
-        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), savedProduct.getPrice());
+        double priceSave = savedProduct.getPrice();
+        String priceStr = String.valueOf(priceSave);
+        double taxSave = savedProduct.getTax();
+        String taxStr = String.valueOf(taxSave);
+        double finalPriceSave = savedProduct.getFinalPrice();
+        String finalPriceStr = String.valueOf(finalPriceSave);
+        return new ProductDTO(savedProduct.getId(), savedProduct.getName(), priceStr, taxStr, finalPriceStr);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Product product = productService.findById(id)
                              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+        double priceSave = product.getPrice();
+        String priceStr = String.valueOf(priceSave);
+        double taxSave = product.getTax();
+        String taxStr = String.valueOf(taxSave);
+        double finalPriceSave = product.getFinalPrice();
+        String finalPriceStr = String.valueOf(finalPriceSave);
         // Conversion to ProductDTO and returning the response
-        return ResponseEntity.ok(new ProductDTO(product.getId(), product.getName(), product.getPrice()));
+        return ResponseEntity.ok(new ProductDTO(product.getId(), product.getName(), priceStr, taxStr, finalPriceStr));
     } 
     
     @PutMapping("/{id}")
@@ -50,9 +82,27 @@ public class ProductController {
         Product product = productService.findById(id).orElse(null);
         if (product != null) {
             product.setName(productDTO.getName());
-            product.setPrice(productDTO.getPrice());
+            
+            String price = productDTO.getPrice();
+            double priceDouble = Double.parseDouble(price);
+            product.setPrice(priceDouble);
+            String tax = productDTO.getTax();
+            double taxtDouble = Double.parseDouble(tax);
+            product.setTax(taxtDouble);
+            double finalPrice = product.getPrice()* (1.0 - (product.getTax()/ 100.0));
+            product.setFinalPrice(finalPrice);
+            
+ 
             Product updatedProduct = productService.save(product);
-            return ResponseEntity.ok(new ProductDTO(updatedProduct.getId(), updatedProduct.getName(), updatedProduct.getPrice()));
+            
+            double priceSave = updatedProduct.getPrice();
+            String priceStr = String.valueOf(priceSave);
+            double taxSave = updatedProduct.getTax();
+            String taxStr = String.valueOf(taxSave);
+            double finalPriceSave = updatedProduct.getFinalPrice();
+            String finalPriceStr = String.valueOf(finalPriceSave);
+            
+            return ResponseEntity.ok(new ProductDTO(updatedProduct.getId(), updatedProduct.getName(), priceStr, taxStr, finalPriceStr));
         } else {
             return ResponseEntity.notFound().build();
         }

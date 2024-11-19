@@ -18,6 +18,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProductController.class);
+
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {

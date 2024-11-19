@@ -9,8 +9,10 @@
     <h2>Create Product</h2>
     <form id="createProductForm" onsubmit="createProduct(); return false;">
         Name: <input type="text" id="productName"><br>
-        Price: <input type="number" id="productPrice"><br>
+        Price: <input type="text" id="productPrice"><br>
+        Tax (%): <input type="text" id="productTax"><br>
         <button type="submit">Create Product</button>
-    </form>
+    </form> 
 </body>
+<div id="errorMessage" style="color: red;"></div>
 </html>

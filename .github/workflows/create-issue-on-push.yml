@@ -8,6 +8,9 @@ on:
 jobs:
   create-issue:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
 
     steps:
       - name: Checkout repository
@@ -23,15 +26,18 @@ jobs:
       - name: Generate Diff for Last Commit
         id: generate_diff
         run: |
-          DIFF=$(git diff HEAD^ HEAD)
-          echo "::set-output name=diff::$DIFF"
+          git diff HEAD^ HEAD > diff.txt
+
+      - name: Check Diff Content
+        run: |
+          cat diff.txt
 
       - name: Create GitHub Issue
         if: ${{ success() }}
         uses: peter-evans/create-issue-from-file@v4
         with:
           title: "Commit diff for ${{ github.sha }}"
-          content: "The following changes were made in commit ${{ github.sha }}:\n\n${{ steps.generate_diff.outputs.diff }}"
+          content-filepath: diff.txt
           labels: "commit-diff"
           token: ${{ secrets.GITHUB_TOKEN }}
 

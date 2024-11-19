@@ -54,6 +54,7 @@ public class ProductController {
             Product updatedProduct = productService.save(product);
             return ResponseEntity.ok(new ProductDTO(updatedProduct.getId(), updatedProduct.getName(), updatedProduct.getPrice()));
         } else {
+	    //Product details are not available
             return ResponseEntity.notFound().build();
         }
     }

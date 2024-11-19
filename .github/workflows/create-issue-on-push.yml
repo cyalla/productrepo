@@ -1,30 +1,37 @@
-name: Create Issue on Push
+name: Create GitHub Issue for Every Commit
 
 on:
   push:
     branches:
-      - main  # Adjust the branch name as needed
+      - '**'
 
 jobs:
   create-issue:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
-
-      # Step 2: Create a new issue
-      - name: Create a new issue
-        uses: peter-evans/create-issue@v4
         with:
+          fetch-depth: 2  # Fetch last 2 commits to generate the diff
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate Diff for Last Commit
+        id: generate_diff
+        run: |
+          DIFF=$(git diff HEAD^ HEAD)
+          echo "::set-output name=diff::$DIFF"
+
+      - name: Create GitHub Issue
+        if: ${{ success() }}
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          title: "Commit diff for ${{ github.sha }}"
+          content: "The following changes were made in commit ${{ github.sha }}:\n\n${{ steps.generate_diff.outputs.diff }}"
+          labels: "commit-diff"
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "Test Issue for Commit"
-          body: |
-            A new issue has been created to test the changes for the latest push.
-            
-            **Commit Details:**
-            - Commit Author: ${{ github.actor }}
-            - Commit Message: ${{ github.event.head_commit.message }}
-            - Commit URL: ${{ github.event.head_commit.url }}
 

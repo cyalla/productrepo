@@ -32,12 +32,55 @@ jobs:
         run: |
           cat diff.txt
 
-      - name: Call Webservice
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install Requests Library
+        run: |
+          python -m pip install requests
+
+      - name: Call Webservice with Python Script
         id: call_webservice
         run: |
-          response=$(curl -s https://fd79-34-106-190-89.ngrok-free.app/webhook)
-          echo "Webservice Response: $response"
-          echo "$response" > webservice_response.txt
+          python - <<EOF
+import requests
+import json
+
+# Define the public URL of the ngrok tunnel
+ngrok_url = "https://fd79-34-106-190-89.ngrok-free.app/webhook"
+
+# Data to send in the POST request (modify according to your endpoint requirements)
+payload = {
+    "key": "value"
+}
+
+# Set the headers
+headers = {
+    "Content-Type": "application/json"
+}
+
+# Make the POST request
+try:
+    response = requests.post(ngrok_url, data=json.dumps(payload), headers=headers)
+
+    # Check the response status code
+    if response.status_code == 200:
+        print("Success:", response.text)
+        with open("webservice_response.txt", "w") as f:
+            f.write(response.text)
+    else:
+        print(f"Failed with status code: {response.status_code}")
+        print("Response content:", response.text)
+        with open("webservice_response.txt", "w") as f:
+            f.write(f"Failed with status code: {response.status_code}\n")
+            f.write(response.text)
+except requests.exceptions.RequestException as e:
+    print(f"Request failed: {e}")
+    with open("webservice_response.txt", "w") as f:
+        f.write(f"Request failed: {e}")
+EOF
 
       - name: Append Webservice Output to Diff
         id: append_output

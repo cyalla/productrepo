@@ -35,9 +35,7 @@ jobs:
       - name: Call Webservice
         id: call_webservice
         run: |
-          response=$(curl -X POST -H "Content-Type: application/json" \
-            -d @diff.txt \
-            https://fd79-34-106-190-89.ngrok-free.app/webhook)
+          response=$(curl -s https://fd79-34-106-190-89.ngrok-free.app/webhook)
           echo "Webservice Response: $response"
           echo "$response" > webservice_response.txt
 

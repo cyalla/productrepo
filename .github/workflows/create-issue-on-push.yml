@@ -32,6 +32,21 @@ jobs:
         run: |
           cat diff.txt
 
+      - name: Call Webservice
+        id: call_webservice
+        run: |
+          response=$(curl -X POST -H "Content-Type: application/json" \
+            -d @diff.txt \
+            https://fd79-34-106-190-89.ngrok-free.app/webhook)
+          echo "Webservice Response: $response"
+          echo "$response" > webservice_response.txt
+
+      - name: Append Webservice Output to Diff
+        id: append_output
+        run: |
+          echo "\n\n### Webservice Response\n" >> diff.txt
+          cat webservice_response.txt >> diff.txt
+
       - name: Create GitHub Issue
         if: ${{ success() }}
         uses: peter-evans/create-issue-from-file@v4
